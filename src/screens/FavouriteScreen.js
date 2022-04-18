@@ -3,46 +3,47 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
 import Message from '../components/Message'
-import { addToFavourite, removeFromFavourite } from '../actions/favouriteActions'
+import { deleteUserFavourite, listFavouriteDogs } from '../actions/favouriteActions'
+import { getUserDetails } from '../actions/userActions'
 
 const FavouriteScreen = ({ match, location, history }) => {
-  const dogId = match.params.id
-
-  const qty = location.search ? Number(location.search.split('=')[1]) : 1
-
   const dispatch = useDispatch()
 
-  const favourite = useSelector((state) => state.favourite)
-  const { favouriteItems } = favourite
+  const favouriteDogList = useSelector((state) => state.favouriteDogList)
+  const { favouriteDogs } = favouriteDogList
+
+  const userLogin = useSelector((state) => state.userLogin)
+  const { userInfo } = userLogin
+
+  const favouriteList = useSelector((state) => state.favouriteList)
+  const { favourites } = favouriteList
 
   useEffect(() => {
-    if (dogId) {
-      dispatch(addToFavourite(dogId, qty))
-    }
-  }, [dispatch, dogId, qty])
+    dispatch(listFavouriteDogs())
+  }, [dispatch, favourites])
 
   const removeFromFavouriteHandler = (id) => {
-    dispatch(removeFromFavourite(id))
+    dispatch(deleteUserFavourite(userInfo._id, id))
   }
 
   return (
     <Row>
       <Col md={12}>
         <h1>Favourite</h1>
-        {favouriteItems.length === 0 ? (
+        {favouriteDogs?.length === 0 ? (
           <Message>
-            Your favourite is empty <Link to='/'>Go Back</Link>
+            Your favourite list is empty
           </Message>
         ) : (
           <ListGroup variant='flush'>
-            {favouriteItems.map((item) => (
-              <ListGroup.Item key={item.dog}>
+            {favouriteDogs?.map((item) => (
+              <ListGroup.Item key={item._id}>
                 <Row>
                   <Col md={2}>
                     <Image src={item.image} alt={item.name} fluid rounded />
                   </Col>
                   <Col md={2}>
-                    <Link to={`/dog/${item.dog}`}>{item.name}</Link>
+                    <Link to={`/dog/${item._id}`}>{item.name}</Link>
                   </Col>
                   <Col md={4}>
                     <ListGroup variant='flush'>
@@ -61,7 +62,7 @@ const FavouriteScreen = ({ match, location, history }) => {
                     <Button
                       type='button'
                       variant='light'
-                      onClick={() => removeFromFavouriteHandler(item.dog)}
+                      onClick={() => removeFromFavouriteHandler(item._id)}
                     >
                       <i className='fas fa-trash'></i>
                     </Button>

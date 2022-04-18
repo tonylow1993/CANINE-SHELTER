@@ -1,42 +1,42 @@
 import {
-  FAVOURITE_ADD_ITEM,
-  FAVOURITE_REMOVE_ITEM,
-  FAVOURITE_CLEAR_ITEMS,
+  UPDATE_FAVOURITE_REQUEST,
+  UPDATE_FAVOURITE_SUCCESS,
+  UPDATE_FAVOURITE_FAIL,
+  FAVOURITE_DOG_LIST_REQUEST,
+  FAVOURITE_DOG_LIST_SUCCESS,
+  FAVOURITE_DOG_LIST_FAIL,
 } from '../constants/favouriteConstants'
 
-export const favouriteReducer = (
-  state = { favouriteItems: [] },
-  action
-) => {
+export const favouriteDogListReducer = (state = { favouriteDogs: [] }, action) => {
   switch (action.type) {
-    case FAVOURITE_ADD_ITEM:
-      const item = action.payload
-
-      const existItem = state.favouriteItems.find((x) => x.dog === item.dog)
-
-      if (existItem) {
-        return {
-          ...state,
-          favouriteItems: state.favouriteItems.map((x) =>
-            x.dog === existItem.dog ? item : x
-          ),
-        }
-      } else {
-        return {
-          ...state,
-          favouriteItems: [...state.favouriteItems, item],
-        }
-      }
-    case FAVOURITE_REMOVE_ITEM:
+    case FAVOURITE_DOG_LIST_REQUEST:
+      return { loading: true, favouriteDogs: [] }
+    case FAVOURITE_DOG_LIST_SUCCESS:
       return {
-        ...state,
-        favouriteItems: state.favouriteItems.filter((x) => x.dog !== action.payload),
+        loading: false,
+        favouriteDogs: action.payload.dogs,
+        pages: action.payload.pages,
+        page: action.payload.page,
       }
-    case FAVOURITE_CLEAR_ITEMS:
-      return {
-        ...state,
-        favouriteItems: [],
+    case FAVOURITE_DOG_LIST_FAIL:
+      return { loading: false, error: action.payload }
+    default:
+      return state
+  }
+} 
+
+export const favouriteReducer = (state = { favourites: [] }, action) => {
+  switch (action.type) {
+    case UPDATE_FAVOURITE_REQUEST:
+      return { loading: true }
+    case UPDATE_FAVOURITE_SUCCESS:
+      return { 
+        loading: false, 
+        favourites: action.payload.favourites,
+        success: true,
       }
+    case UPDATE_FAVOURITE_FAIL:
+      return { loading: false, error: action.payload }
     default:
       return state
   }

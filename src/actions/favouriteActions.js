@@ -1,31 +1,113 @@
 import axios from 'axios'
 import {
-  FAVOURITE_ADD_ITEM,
-  FAVOURITE_REMOVE_ITEM,
+  UPDATE_FAVOURITE_REQUEST,
+  UPDATE_FAVOURITE_SUCCESS,
+  UPDATE_FAVOURITE_FAIL,
+  FAVOURITE_DOG_LIST_REQUEST,
+  FAVOURITE_DOG_LIST_SUCCESS,
+  FAVOURITE_DOG_LIST_FAIL,
 } from '../constants/favouriteConstants'
+import {
+  USER_DETAILS_SUCCESS,
+} from '../constants/userConstants'
 
-export const addToFavourite = (id, qty) => async (dispatch, getState) => {
-  const { data } = await axios.get(`/api/dogs/${id}`)
+export const listFavouriteDogs = () => async (dispatch, getState) => {
+  try {
+    const {
+      userLogin: { userInfo },
+    } = getState()
 
-  dispatch({
-    type: FAVOURITE_ADD_ITEM,
-    payload: {
-      dog: data._id,
-      name: data.name,
-      image: data.image,
-      year: data.year,
-      qty,
-    },
-  })
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    }
 
-  localStorage.setItem('favouriteItems', JSON.stringify(getState().favourite.favouriteItems))
+    const userData = await axios.get(`/api/users/${userInfo._id}`, config)
+
+    dispatch({ type: USER_DETAILS_SUCCESS, payload: userData.data })
+
+    dispatch({ type: FAVOURITE_DOG_LIST_REQUEST })
+
+    const { data } = await axios.get(
+      `/api/dogs?ids=${userData.data.favourites}`
+    )
+
+    dispatch({
+      type: FAVOURITE_DOG_LIST_SUCCESS,
+      payload: data,
+    })
+  } catch (error) {
+    dispatch({
+      type: FAVOURITE_DOG_LIST_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    })
+  }
 }
 
-export const removeFromFavourite = (id) => (dispatch, getState) => {
-  dispatch({
-    type: FAVOURITE_REMOVE_ITEM,
-    payload: id,
-  })
+export const addUserFavourite = (userId, dogId) => async (dispatch, getState) => {
+  try {
+    dispatch({
+      type: UPDATE_FAVOURITE_REQUEST,
+    })
 
-  localStorage.setItem('favouriteItems', JSON.stringify(getState().favourite.favouriteItems))
+    const {
+      userLogin: { userInfo },
+    } = getState()
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    }
+
+    const { data } = await axios.post(`/api/users/${userId}/favourite/${dogId}`, {}, config)
+
+    dispatch({ type: UPDATE_FAVOURITE_SUCCESS, payload: data })
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message
+    dispatch({
+      type: UPDATE_FAVOURITE_FAIL,
+      payload: message,
+    })
+  }
+}
+
+export const deleteUserFavourite = (userId, dogId) => async (dispatch, getState) => {
+  try {
+    dispatch({
+      type: UPDATE_FAVOURITE_REQUEST,
+    })
+
+    const {
+      userLogin: { userInfo },
+    } = getState()
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    }
+
+    const { data } = await axios.delete(`/api/users/${userId}/favourite/${dogId}`, config)
+
+    dispatch({ type: UPDATE_FAVOURITE_SUCCESS, payload: data })
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message
+    dispatch({
+      type: UPDATE_FAVOURITE_FAIL,
+      payload: message,
+    })
+  }
 }

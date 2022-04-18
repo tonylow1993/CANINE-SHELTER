@@ -8,11 +8,9 @@ import Meta from '../components/Meta'
 import {
   listDogDetails,
 } from '../actions/dogActions'
+import { addUserFavourite } from '../actions/favouriteActions'
 
 const DogScreen = ({ history, match }) => {
-  const [qty, setQty] = useState(1)
-  const [comment, setComment] = useState('')
-
   const dispatch = useDispatch()
 
   const dogDetails = useSelector((state) => state.dogDetails)
@@ -28,7 +26,12 @@ const DogScreen = ({ history, match }) => {
   }, [dispatch, match])
 
   const addToFavouriteHandler = () => {
-    history.push(`/favourite/${match.params.id}?qty=${qty}`)
+    dispatch(
+      addUserFavourite(
+        userInfo._id,
+        dog._id
+      )
+    )
   }
 
   return (

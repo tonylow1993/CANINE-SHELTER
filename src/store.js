@@ -9,7 +9,6 @@ import {
   dogUpdateReducer,
   dogTopRatedReducer,
 } from './reducers/dogReducers'
-import { favouriteReducer } from './reducers/favouriteReducers'
 import {
   userLoginReducer,
   userRegisterReducer,
@@ -19,15 +18,20 @@ import {
   userDeleteReducer,
   userUpdateReducer,
 } from './reducers/userReducers'
+import {
+  favouriteDogListReducer,
+  favouriteReducer,
+} from './reducers/favouriteReducers'
 
 const reducer = combineReducers({
   dogList: dogListReducer,
+  favouriteDogList: favouriteDogListReducer,
   dogDetails: dogDetailsReducer,
   dogDelete: dogDeleteReducer,
   dogCreate: dogCreateReducer,
   dogUpdate: dogUpdateReducer,
   dogTopRated: dogTopRatedReducer,
-  favourite: favouriteReducer,
+  favouriteList: favouriteReducer,
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
   userDetails: userDetailsReducer,
@@ -37,19 +41,14 @@ const reducer = combineReducers({
   userUpdate: userUpdateReducer,
 })
 
-const favouriteItemsFromStorage = localStorage.getItem('favouriteItems')
-  ? JSON.parse(localStorage.getItem('favouriteItems'))
-  : []
-
 const userInfoFromStorage = localStorage.getItem('userInfo')
   ? JSON.parse(localStorage.getItem('userInfo'))
   : null
 
 const initialState = {
-  favourite: {
-    favouriteItems: favouriteItemsFromStorage,
-  },
+  favouriteList: { favourites: [] },
   userLogin: { userInfo: userInfoFromStorage },
+  userDetails: {}
 }
 
 const middleware = [thunk]
