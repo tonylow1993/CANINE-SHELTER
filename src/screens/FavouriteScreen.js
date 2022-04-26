@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
 import Message from '../components/Message'
 import { deleteUserFavourite, listFavouriteDogs } from '../actions/favouriteActions'
-import { getUserDetails } from '../actions/userActions'
 
 const FavouriteScreen = ({ match, location, history }) => {
   const dispatch = useDispatch()
