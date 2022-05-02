@@ -47,3 +47,9 @@ h2 {
     font-size: 2.5vw;
   }
 }
+
+.divider {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #000;
+}
