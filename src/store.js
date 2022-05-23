@@ -22,6 +22,9 @@ import {
   favouriteDogListReducer,
   favouriteReducer,
 } from './reducers/favouriteReducers'
+import {
+  messageListReducer,
+} from './reducers/messageReducers'
 
 const reducer = combineReducers({
   dogList: dogListReducer,
@@ -39,6 +42,7 @@ const reducer = combineReducers({
   userList: userListReducer,
   userDelete: userDeleteReducer,
   userUpdate: userUpdateReducer,
+  messageList: messageListReducer,
 })
 
 const userInfoFromStorage = localStorage.getItem('userInfo')
@@ -48,7 +52,8 @@ const userInfoFromStorage = localStorage.getItem('userInfo')
 const initialState = {
   favouriteList: { favourites: [] },
   userLogin: { userInfo: userInfoFromStorage },
-  userDetails: {}
+  userDetails: {},
+  messageList: { messages: [] },
 }
 
 const middleware = [thunk]

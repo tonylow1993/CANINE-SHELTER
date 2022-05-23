@@ -17,8 +17,8 @@ const UserEditScreen = ({ match, history }) => {
 
   const dispatch = useDispatch()
 
-  const userDetails = useSelector((state) => state.userDetails)
-  const { loading, error, user } = userDetails
+  const userLogin = useSelector((state) => state.userLogin)
+  const { loading, error, userInfo } = userLogin
 
   const userUpdate = useSelector((state) => state.userUpdate)
   const {
@@ -32,15 +32,15 @@ const UserEditScreen = ({ match, history }) => {
       dispatch({ type: USER_UPDATE_RESET })
       history.push('/admin/userlist')
     } else {
-      if (!user.name || user._id !== userId) {
+      if (!userInfo.name || userInfo._id !== userId) {
         dispatch(getUserDetails(userId))
       } else {
-        setName(user.name)
-        setEmail(user.email)
-        setIsAdmin(user.isAdmin)
+        setName(userInfo.name)
+        setEmail(userInfo.email)
+        setIsAdmin(userInfo.isAdmin)
       }
     }
-  }, [dispatch, history, userId, user, successUpdate])
+  }, [dispatch, history, userId, userInfo, successUpdate])
 
   const submitHandler = (e) => {
     e.preventDefault()

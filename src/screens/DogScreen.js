@@ -9,7 +9,8 @@ import {
   listDogDetails,
 } from '../actions/dogActions'
 import { addUserFavourite } from '../actions/favouriteActions'
-import { createMessage } from '../actions/messageActions'
+import { createMessage, deleteMessage, listMessage, replyMessage } from '../actions/messageActions'
+import '../message.css'
 
 const DogScreen = ({ history, match }) => {
   const dispatch = useDispatch()
@@ -27,8 +28,12 @@ const DogScreen = ({ history, match }) => {
   const userLogin = useSelector((state) => state.userLogin)
   const { userInfo } = userLogin
 
+  const messageList = useSelector((state) => state.messageList)
+  const { messages } = messageList
+
   useEffect(() => {
     if (!dog._id || dog._id !== match.params.id) {
+      dispatch(listMessage(match.params.id))
       dispatch(listDogDetails(match.params.id))
     }
   }, [dispatch, match])
@@ -45,6 +50,74 @@ const DogScreen = ({ history, match }) => {
   const submitHandler = (e) => {
     e.preventDefault()
     dispatch(createMessage(match.params.id, message))
+  }
+
+  const Comment = ({ message }) => {
+    const [toggleReplyBox, setToggleReplyBox] = useState(false)
+    const [reply, setReply] = useState('')
+
+    const sendReply = (messageId) => {
+      dispatch(replyMessage(messageId, reply))
+    }
+
+    const deleteMsg = (messageId) => {
+      dispatch(deleteMessage(messageId, -1))
+    }
+
+    return (
+      <div className='comment-thread'>
+          <details open className='comment' id='comment-1'>
+              <summary>
+                  <div className='comment-heading'>
+                      <div className='comment-info'>
+                          <div className='comment-author'>{message.name}</div>
+                      </div>
+                  </div>
+              </summary>
+              <div className='comment-body'>
+                  <p>{message.text}</p>
+                  { userInfo?.isAdmin && <button className='btn-primary btn-small' type='button' onClick={() => setToggleReplyBox(true)}>Reply</button> }
+                  { userInfo?.isAdmin && <button className='btn-primary btn-small' type='button' onClick={() => deleteMsg(message._id)}>Delete</button> }
+                  {
+                    toggleReplyBox && <div className='reply-form'>
+                      <textarea placeholder='Reply to message' rows='4' value={reply} onChange={e => setReply(e.target.value)}></textarea>
+                      <button className='btn-primary btn-small' type='button' onClick={() => sendReply(message._id)}>Submit</button>
+                      <button className='btn-primary btn-small' type='button' onClick={() => setToggleReplyBox(false)}>Cancel</button>
+                    </div>
+                  }
+              </div>
+              {
+                message.replies.map((reply, index) => (
+                  <Reply messageId={message._id} key={index} reply={reply} index={index}/>
+                ))
+              }
+          </details>
+      </div>
+    )
+  }
+
+  const Reply = ({ index, messageId, reply }) => {
+    const deleteReply = () => {
+      dispatch(deleteMessage(messageId, index))
+    }
+
+    return (
+      <div className='replies'>
+        <details open className='comment'>
+            <summary>
+                <div className='comment-heading'>
+                    <div className='comment-info'>
+                        <div className='comment-author'>Admin</div>
+                    </div>
+                </div>
+            </summary>
+            <div className='comment-body'>
+                <p> {reply} </p>
+                { userInfo?.isAdmin && <button type='btn-primary btn-small' onClick={() => deleteReply()}>Delete</button> }
+            </div>
+        </details>
+      </div>
+    )
   }
 
   return (
@@ -80,15 +153,33 @@ const DogScreen = ({ history, match }) => {
               </ListGroup>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
-                  <Button
-                    onClick={addToFavouriteHandler}
-                    className='btn-block'
-                    type='button'
-                  >
-                    Add To Favourite
-                  </Button>
+                  {
+                    userInfo && <Button
+                      onClick={addToFavouriteHandler}
+                      className='btn-block'
+                      type='button'
+                    >
+                      Add To Favourite
+                    </Button>
+                  }
                 </ListGroup.Item>
               </ListGroup>
+            </Col>
+          </Row>
+          <Row className='divider'>
+            <Col md={7}>
+              <ListGroup variant='flush'>
+                <ListGroup.Item>
+                  <h2>Messages</h2>
+                  { 
+                    messages.map(message => (
+                      <Comment key={message.id} message={message}/>
+                    ))
+                  }
+                </ListGroup.Item>
+              </ListGroup>
+            </Col>
+            <Col md={5}>
               <ListGroup variant='flush'>
                 {/* {product.reviews.map((review) => (
                   <ListGroup.Item key={review._id}>
@@ -99,7 +190,7 @@ const DogScreen = ({ history, match }) => {
                   </ListGroup.Item>
                 ))} */}
                 <ListGroup.Item>
-                  <h2 class='divider'>Leave a message to express your interest</h2>
+                  <h2>Leave a message to express your interest</h2>
                   {
                     <Form onSubmit={submitHandler}>
                       <Form.Group controlId='name'>
@@ -127,7 +218,7 @@ const DogScreen = ({ history, match }) => {
                         ></Form.Control>
                       </Form.Group>
                       <Form.Group controlId='text'>
-                        <Form.Label>Comment</Form.Label>
+                        <Form.Label>Message</Form.Label>
                         <Form.Control
                           as='textarea'
                           row='3'
